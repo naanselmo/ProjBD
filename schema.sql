@@ -4,20 +4,20 @@ CREATE TABLE User
      nome     CHAR(25), 
      telefone INTEGER, 
      CONSTRAINT userKey PRIMARY KEY (nif) 
-  ) 
+  ) ;
 
 CREATE TABLE Fiscal 
   ( 
      id      INTEGER, 
      empresa CHAR(25), 
      CONSTRAINT fiscalKey PRIMARY KEY (id) 
-  ) 
+  ) ;
 
 CREATE TABLE Edificio 
   ( 
      morada CHAR(50), 
      CONSTRAINT edificioKey PRIMARY KEY (morada) 
-  ) 
+  ) ;
 
 CREATE TABLE Alugavel 
   ( 
@@ -26,9 +26,9 @@ CREATE TABLE Alugavel
      foto   LONGBLOB, 
      CONSTRAINT alugavelKey PRIMARY KEY (morada, codigo), 
      FOREIGN KEY (morada) REFERENCES Edificio(morada) 
-  ) 
+  ) ;
 
-CREATE TABLE arrenda 
+CREATE TABLE Arrenda 
   ( 
      morada  CHAR(50), 
      codigo INTEGER, 
@@ -36,7 +36,7 @@ CREATE TABLE arrenda
      CONSTRAINT arrendaKey PRIMARY KEY (morada, codigo), 
      FOREIGN KEY (morada, codigo) REFERENCES Alugavel(morada, codigo), 
      FOREIGN KEY (nif) REFERENCES User(nif) 
-  ) 
+  ) ;
 
 CREATE TABLE Fiscaliza 
   ( 
@@ -46,7 +46,7 @@ CREATE TABLE Fiscaliza
      CONSTRAINT fiscalizaKey PRIMARY KEY (id, morada, codigo), 
      FOREIGN KEY (id) REFERENCES Fiscal(id) 
      FOREIGN KEY (morada, codigo) REFERENCES Arrenda(morada, codigo) 
-  ) 
+  ) ;
 
 CREATE TABLE Espaco 
   ( 
@@ -54,7 +54,7 @@ CREATE TABLE Espaco
      codigo INTEGER, 
      CONSTRAINT espacoKey PRIMARY KEY (morada, codigo), 
      FOREIGN KEY (morada, codigo) REFERENCES Alugavel(morada, codigo) 
-  ) 
+  ) ;
 
 CREATE TABLE Posto 
   ( 
@@ -64,7 +64,7 @@ CREATE TABLE Posto
      CONSTRAINT postoKey PRIMARY KEY (morada, codigo), 
      FOREIGN KEY (morada, codigo) REFERENCES Alugavel(morada, codigo) 
      FOREIGN KEY (morada, codigo) REFERENCES Espaco(morada, codigo) 
-  ) 
+  ) ;
 
 CREATE TABLE Oferta 
   ( 
@@ -75,7 +75,7 @@ CREATE TABLE Oferta
      tarifa      NUMERIC(8, 2), 
      CONSTRAINT ofertaKey PRIMARY KEY (morada, codigo, data_inicio), 
      FOREIGN KEY (morada, codigo) REFERENCES Alugavel(morada, codigo) 
-  ) 
+  ) ;
 
 CREATE TABLE Aluga 
   ( 
@@ -89,7 +89,7 @@ CREATE TABLE Aluga
      data_inicio) 
      FOREIGN KEY (nif) REFERENCES User(nif), 
      FOREIGN KEY (numero) REFERENCES Reserva(numero) 
-  ) 
+  ) ;
 
 CREATE TABLE Paga 
   ( 
@@ -98,7 +98,7 @@ CREATE TABLE Paga
      metodo CHAR(50), 
      CONSTRAINT pagaKey PRIMARY KEY (numero), 
      FOREIGN KEY (numero) REFERENCES Reserva (numero) 
-  ) 
+  ) ;
 
 CREATE TABLE Estado 
   ( 
@@ -107,10 +107,10 @@ CREATE TABLE Estado
      estado    CHAR(50), 
      CONSTRAINT estadoKey PRIMARY KEY (numero, timestamp), 
      FOREIGN KEY(numero) REFERENCES Reserva(numero) 
-  ) 
+  ) ;
 
 CREATE TABLE Reserva 
   ( 
      numero INTEGER, 
      CONSTRAINT reservaKey PRIMARY KEY(numero) 
-  ) 
+  ) ;
