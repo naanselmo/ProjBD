@@ -1,13 +1,10 @@
-DROP DATABASE IF EXISTS proj;
-CREATE DATABASE proj;
-USE proj;
+SET FOREIGN_KEY_CHECKS=0;
 
 CREATE TABLE reserva
 (
   numero INTEGER,
   PRIMARY KEY (numero)
 );
-
 
 CREATE TABLE user
 (
@@ -119,3 +116,4 @@ CREATE TABLE estado
   FOREIGN KEY (numero) REFERENCES reserva (numero)
 );
 
+SET FOREIGN_KEY_CHECKS=1;
