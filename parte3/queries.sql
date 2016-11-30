@@ -23,7 +23,7 @@ c) Quais utilizadores cujos alugáveis foram fiscalizados sempre pelo mesmo fisc
 
 SELECT nif
 FROM   fiscaliza
-       natural JOIN arrenda
+       NATURAL JOIN arrenda
 GROUP  BY nif
 HAVING Count(DISTINCT id) = 1;
 
@@ -33,9 +33,9 @@ SELECT e.morada,
        e.codigo,
        Sum(o.tarifa) * 365 AS montanteAnual
 FROM   paga p
-       natural JOIN aluga a
-       natural JOIN oferta o
-       natural JOIN espaco e
+       NATURAL JOIN aluga a
+       NATURAL JOIN oferta o
+       NATURAL JOIN espaco e
 WHERE  p.data BETWEEN '2016-01-01' AND '2016-12-31'
 GROUP  BY e.morada,
           e.codigo;
@@ -44,12 +44,31 @@ e) Quais os espaços de trabalho cujos postos nele contidos foram todos alugados
 
 SELECT codigo_espaco
 FROM   aluga
-       natural JOIN estado
-       natural JOIN posto
+       NATURAL JOIN estado
+       NATURAL JOIN posto
 GROUP  BY codigo_espaco
 HAVING (SELECT Count(codigo) AS numPostos
         FROM   posto
         GROUP  BY codigo_espaco) = (SELECT Count(morada)
                                     FROM   aluga
-                                           natural JOIN estado
+                                           NATURAL JOIN estado
                                     WHERE  estado = 'aceite');
+
+z) Quais as ofertas que não têm reservas associadas cujos estados sejam Paga ou Aceite
+
+SELECT o.morada, o.codigo, o.data_inicio, o.data_fim, o.tarifa
+FROM oferta o LEFT OUTER JOIN (
+  SELECT morada, codigo
+  FROM aluga NATURAL JOIN (
+    SELECT numero
+    FROM estado e NATURAL JOIN (
+      SELECT numero, MAX(time_stamp) AS time_stamp
+      FROM estado
+      GROUP BY numero
+    ) f
+    WHERE estado = "Aceite" OR estado = "Paga"
+  ) z
+) s
+ON o.morada = s.morada
+AND o.codigo = s.codigo
+WHERE s.codigo IS NULL;
