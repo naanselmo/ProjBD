@@ -1,37 +1,42 @@
 /* Não podem existir ofertas com datas sobrepostas */
 
-delimiter //
+DELIMITER //
 CREATE TRIGGER insertOffer BEFORE INSERT ON oferta
 FOR EACH ROW
-	BEGIN
-	DECLARE msg VARCHAR(255);
+  BEGIN
+    DECLARE msg VARCHAR(255);
 
-	IF (new.data_inicio <= old.data_fim) and (new.data_fim >= old.data_inicio) then
-		set msg = "intervalo de datas inválido";
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = msg;
-	END IF
+    IF (new.data_inicio <= old.data_fim) AND (new.data_fim >= old.data_inicio)
+    THEN
+      SET msg = 'intervalo de datas inválido';
+      SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = msg;
+    END IF;
 
-END
-	
- /* A data de pagamento de uma reserva paga tem de ser superior ao timestamp do
+  END//
+
+/* A data de pagamento de uma reserva paga tem de ser superior ao timestamp do
 último estado dessa reserva */
-
-delimiter //
 CREATE TRIGGER insertPay BEFORE INSERT ON paga
 FOR EACH ROW
-	BEGIN
-	DECLARE msg VARCHAR(255);
-	DECLARE last timestamp 
+  BEGIN
+    DECLARE msg VARCHAR(255);
+    DECLARE last TIMESTAMP;
 
-	set last = SELECT timestamp 
-			   FROM paga NATURAL JOIN estado
-			   WHERE numero = new.numero
-	           ORDER BY timestamp DESC
-	           LIMIT 1 ;
+    SELECT time_stamp
+    INTO last
+    FROM paga
+      NATURAL JOIN estado
+    WHERE numero = new.numero
+    ORDER BY time_stamp DESC
+    LIMIT 1;
 
-	if (last >= new.timestamp) then
-		set msg = "data de pagamento inválida";
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = msg;
-	END IF
+    IF (last >= new.data)
+    THEN
+      SET msg = 'data de pagamento inválida';
+      SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = msg;
+    END IF;
 
-END
+  END//
+DELIMITER ;

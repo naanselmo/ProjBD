@@ -1,3 +1,5 @@
+SET FOREIGN_KEY_CHECKS=0;
+
 insert into edificio values ('IST');
 insert into edificio values ('FEUP');
 insert into edificio values ('Catolica');
@@ -215,3 +217,5 @@ insert into estado values ('2016-11', '2016-01-01 13:23:25', 'Paga');
 insert into estado values ('2016-12', '2016-01-01 01:33:19', 'Aceite');
 insert into estado values ('2016-13', '2016-02-01 07:15:27', 'Aceite');
 insert into estado values ('2016-13', '2016-02-01 09:21:05', 'Paga');
+
+SET FOREIGN_KEY_CHECKS=1;
