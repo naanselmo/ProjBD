@@ -1,3 +1,5 @@
+-- Não podem existir ofertas com datas sobrepostas
+
 DROP TRIGGER IF EXISTS insertOffer;
 DELIMITER //
   CREATE TRIGGER insertOffer BEFORE INSERT ON oferta
@@ -19,8 +21,7 @@ DELIMITER //
   END//
 delimiter ;
 
-/* A data de pagamento de uma reserva paga tem de ser superior ao timestamp do
-último estado dessa reserva */
+-- A data de pagamento de uma reserva paga tem de ser superior ao timestamp do último estado dessa reserva
 DROP TRIGGER IF EXISTS insertPay;
 DELIMITER //
   CREATE TRIGGER insertPay BEFORE INSERT ON paga
@@ -30,8 +31,7 @@ DELIMITER //
 
     SELECT time_stamp
     INTO   last
-    FROM   paga
-           NATURAL JOIN estado
+    FROM   estado
     WHERE  numero = new.numero
     ORDER  BY time_stamp DESC
     LIMIT  1;
