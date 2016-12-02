@@ -36,9 +36,8 @@ FROM   ((SELECT morada,
          FROM   aluga
                 NATURAL JOIN oferta
                 NATURAL JOIN posto
-                NATURAL JOIN estado
-         WHERE  estado = 'Paga'
-                AND Year(time_stamp) = 2016)
+                NATURAL JOIN paga
+                WHERE Year(data) = 2016)
         UNION
         (SELECT morada,
                 codigo,
@@ -46,9 +45,8 @@ FROM   ((SELECT morada,
          FROM   aluga
                 NATURAL JOIN oferta
                 NATURAL JOIN espaco
-                NATURAL JOIN estado
-         WHERE  estado = 'Paga'
-                AND Year(time_stamp) = 2016)) t
+                NATURAL JOIN paga
+                WHERE Year(data) = 2016)) t
 GROUP  BY morada,
           codigo;
 
@@ -85,6 +83,7 @@ FROM   ((SELECT morada,
          FROM   aluga
                 NATURAL JOIN oferta
                 NATURAL JOIN posto
+                NATURAL JOIN paga
                 NATURAL JOIN (SELECT morada,
                                      codigo
                               FROM   arrenda
@@ -96,6 +95,7 @@ FROM   ((SELECT morada,
          FROM   aluga
                 NATURAL JOIN oferta
                 NATURAL JOIN espaco
+                NATURAL JOIN paga
                 NATURAL JOIN (SELECT morada,
                                      codigo
                               FROM   arrenda
@@ -125,4 +125,4 @@ FROM   oferta o
                                                      OR estado = "paga") z) s
                     ON o.morada = s.morada
                        AND o.codigo = s.codigo
-WHERE  s.codigo IS NULL; 
+WHERE  s.codigo IS NULL;
