@@ -31,24 +31,24 @@ SELECT morada,
        codigo,
        Sum(montante)
 FROM   ((SELECT morada,
-                codigo_espaco                            AS codigo,
-                (Datediff(data_fim, data_inicio)+1) * tarifa AS montante
+                codigo_espaco                                    AS codigo,
+                ( Datediff(data_fim, data_inicio) + 1 ) * tarifa AS montante
          FROM   aluga
                 NATURAL JOIN oferta
                 NATURAL JOIN posto
                 NATURAL JOIN paga
-                WHERE Year(data) = 2016)
+         WHERE  Year(data) = 2016)
         UNION
         (SELECT morada,
                 codigo,
-                (Datediff(data_fim, data_inicio)+1) * tarifa AS montante
+                ( Datediff(data_fim, data_inicio) + 1 ) * tarifa AS montante
          FROM   aluga
                 NATURAL JOIN oferta
                 NATURAL JOIN espaco
                 NATURAL JOIN paga
-                WHERE Year(data) = 2016)) t
+         WHERE  Year(data) = 2016)) t
 GROUP  BY morada,
-          codigo;
+          codigo; 
 
 -- e) Quais os espaços de trabalho cujos postos nele contidos foram todos alugados? (Por alugado entende-se um posto de trabalho que tenha pelo menos uma oferta aceite, independentemente das suas datas.)
 
@@ -71,6 +71,33 @@ FROM   (SELECT morada,
                              WHERE  estado = 'Aceite') p
                      GROUP  BY morada,
                                codigo_espaco) r2;
+
+-- x) Qual o montante total realizado (pago) por um dado espaço?
+
+SELECT morada,
+       codigo,
+       Sum(montante)
+FROM   ((SELECT morada,
+                codigo_espaco                                    AS codigo,
+                ( Datediff(data_fim, data_inicio) + 1 ) * tarifa AS montante
+         FROM   aluga
+                NATURAL JOIN oferta
+                NATURAL JOIN posto
+                NATURAL JOIN paga
+         WHERE  codigo_espaco = 'Central'
+                AND morada = 'ISEL')
+        UNION
+        (SELECT morada,
+                codigo,
+                Datediff(data_fim, data_inicio) * tarifa AS montante
+         FROM   aluga
+                NATURAL JOIN oferta
+                NATURAL JOIN espaco
+                NATURAL JOIN paga
+         WHERE  codigo = 'Central'
+                AND morada = 'ISEL')) t
+GROUP  BY morada,
+          codigo;
 
 -- y) Qual o montante total realizado (pago) por cada espaço do utilizador de nif '143856248'?
 
