@@ -72,11 +72,11 @@ class Workstation extends Rentable
    * @param string $code The unique code of the workstation.
    * @param string $image The image url of the workstation.
    * @param string $nif The user who leases the workstation.
-   * @param string $workspaceCode The code of the workspace where the workstation is.
+   * @param string $workspaceCode The code of the workspace where the workstation is. Always define it! It's null just to respect the parents create method.
    * @return null|Workstation Workstation instance if created successfully. null if Rentable with
    * the given address and code already exists.
    */
-  public static function create($address, $code, $image, $nif, $workspaceCode)
+  public static function create($address, $code, $image, $nif, $workspaceCode = null)
   {
     try {
       // Create the rentable associated with the workstation.

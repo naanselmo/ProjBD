@@ -23,9 +23,6 @@ $code = $response['code'];
 // Check if the fields are good! //
 ///////////////////////////////////
 
-if (!is_numeric($code))
-  redirect('../index.php');
-
 ////////////////////////////////////
 // Now that everything is checked //
 ////////////////////////////////////

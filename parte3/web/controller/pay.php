@@ -24,6 +24,9 @@ $method = $response['method'];
 // Check if the fields are good! //
 ///////////////////////////////////
 
+if (strlen(trim($method)) == 0)
+  redirect('../pay.php', 'Método de pagamento inválido!');
+
 ////////////////////////////////////
 // Now that everything is checked //
 ////////////////////////////////////

@@ -29,6 +29,8 @@ $number = $response['number'];
 $start_date = parseDate($start_date);
 if ($start_date == null)
   redirect('../reserve.php');
+if (strlen(trim($number)) == 0)
+  redirect('../reserve.php', 'Número de reserva inválido!');
 
 ////////////////////////////////////
 // Now that everything is checked //
