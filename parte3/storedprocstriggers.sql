@@ -19,7 +19,7 @@ FOR EACH ROW
 	    IF timestampdiff(day,new.data_inicio,new.data_fim) < 0 AND registers > 0 THEN
 	  		set msg = 'intervalo de datas inválido';
 	    END IF;
-	END;
+	END
 //
 delimiter ;
 /* A data de pagamento de uma reserva paga tem de ser superior ao timestamp do
@@ -42,5 +42,5 @@ FOR EACH ROW
 			set msg = 'data de pagamento inválida';
 	        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = msg;
 		END IF;
-	END;
+	END
 //
