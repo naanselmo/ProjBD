@@ -1,0 +1,82 @@
+/*░▒▓████████████████▓▒░*/
+/*░▒▓██ Components ██▓▒░*/
+/*░▒▓████████████████▓▒░*/
+
+/* Themed button */
+.bg-themed {
+    background-color: #154254;
+}
+
+.btn-themed {
+    border: none;
+    background-color: #154254;
+    color: white;
+}
+
+.btn-themed:hover {
+    background-color: #18748a;
+}
+
+.btn-themed:focus {
+    background-color: #112e3d;
+}
+
+.btn-themed:active {
+    background-color: #165569 !important;
+}
+
+/* Themed navbar */
+.navbar {
+    margin-bottom: 25px;
+}
+
+.active {
+    font-weight: 700;
+}
+
+/* Dynamic selector */
+.dynamic-selector-title {
+    position: relative;
+    margin-bottom: 8px;
+}
+
+.dynamic-selector-title > * {
+    display: inline-block;
+}
+
+.dynamic-selector-heading {
+    position: relative;
+    top: 4px;
+    margin: 0 8px 0 0;
+}
+
+.dynamic-selector-list {
+    width: auto;
+}
+
+.dynamic-selector-info {
+
+}
+
+/* creation form */
+.creation-form {
+    margin-bottom: 30px;
+}
+
+/* sortable table */
+.header {
+    cursor: pointer;
+    background: url("vendor/bg.gif") no-repeat center right;
+}
+
+.headerSortUp {
+    background-image: url("vendor/asc.gif");
+}
+
+.headerSortDown {
+    background-image: url("vendor/desc.gif");
+}
+
+.number-column {
+    text-align: right;
+}
