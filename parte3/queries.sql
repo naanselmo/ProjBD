@@ -32,7 +32,7 @@ SELECT morada,
        Sum(montante)
 FROM   ((SELECT morada,
                 codigo_espaco                            AS codigo,
-                Datediff(data_fim, data_inicio) * tarifa AS montante
+                (Datediff(data_fim, data_inicio)+1) * tarifa AS montante
          FROM   aluga
                 NATURAL JOIN oferta
                 NATURAL JOIN posto
@@ -41,7 +41,7 @@ FROM   ((SELECT morada,
         UNION
         (SELECT morada,
                 codigo,
-                Datediff(data_fim, data_inicio) * tarifa AS montante
+                (Datediff(data_fim, data_inicio)+1) * tarifa AS montante
          FROM   aluga
                 NATURAL JOIN oferta
                 NATURAL JOIN espaco
@@ -79,7 +79,7 @@ SELECT morada,
        Sum(montante)
 FROM   ((SELECT morada,
                 codigo_espaco                            AS codigo,
-                Datediff(data_fim, data_inicio) * tarifa AS montante
+                (Datediff(data_fim, data_inicio)+1) * tarifa AS montante
          FROM   aluga
                 NATURAL JOIN oferta
                 NATURAL JOIN posto
