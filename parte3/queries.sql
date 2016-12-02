@@ -48,7 +48,7 @@ FROM   ((SELECT morada,
                 NATURAL JOIN paga
          WHERE  Year(data) = 2016)) t
 GROUP  BY morada,
-          codigo; 
+          codigo;
 
 -- e) Quais os espaços de trabalho cujos postos nele contidos foram todos alugados? (Por alugado entende-se um posto de trabalho que tenha pelo menos uma oferta aceite, independentemente das suas datas.)
 
@@ -89,7 +89,7 @@ FROM   ((SELECT morada,
         UNION
         (SELECT morada,
                 codigo,
-                Datediff(data_fim, data_inicio) * tarifa AS montante
+                ( Datediff(data_fim, data_inicio) + 1 ) * tarifa AS montante
          FROM   aluga
                 NATURAL JOIN oferta
                 NATURAL JOIN espaco
@@ -106,7 +106,7 @@ SELECT morada,
        Sum(montante)
 FROM   ((SELECT morada,
                 codigo_espaco                            AS codigo,
-                (Datediff(data_fim, data_inicio)+1) * tarifa AS montante
+                ( Datediff(data_fim, data_inicio) + 1 ) * tarifa AS montante
          FROM   aluga
                 NATURAL JOIN oferta
                 NATURAL JOIN posto
@@ -118,7 +118,7 @@ FROM   ((SELECT morada,
         UNION
         (SELECT morada,
                 codigo,
-                Datediff(data_fim, data_inicio) * tarifa AS montante
+                ( Datediff(data_fim, data_inicio) + 1 ) * tarifa AS montante
          FROM   aluga
                 NATURAL JOIN oferta
                 NATURAL JOIN espaco
