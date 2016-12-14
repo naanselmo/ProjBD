@@ -1,5 +1,3 @@
-USE proj_dw;
-
 SET FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE IF EXISTS user;
