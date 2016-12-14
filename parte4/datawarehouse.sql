@@ -6,11 +6,11 @@ CREATE TABLE user(
 
 CREATE TABLE date_dimension (
   date_id INTEGER,
-  dia integer,
-  semana integer,
-  mes integer,
-  semestre integer,
-  ano integer,
+  dia INTEGER,
+  semana INTEGER,
+  mes INTEGER,
+  semestre INTEGER,
+  ano INTEGER,
   PRIMARY KEY(date_id) );
 
 CREATE TABLE local_dimension(
@@ -24,15 +24,15 @@ CREATE TABLE local_dimension(
 CREATE TABLE time_dimension(
   time_id INTEGER,
   minuto_do_dia INTEGER
-    PRIMARY KEY(time_id)
+  PRIMARY KEY(time_id)
 );
 
 CREATE TABLE reserva(
-  nif integer,
+  nif INTEGER,
   date_id INTEGER,
   time_id INTEGER,
   local_id INTEGER,
-  total_pago,
+  total_pago INTEGER,
   duracao_em_dias INTEGER,
   PRIMARY KEY (nif, date_id,time_id,local_id),
   FOREIGN KEY (date_id) REFERENCES date_dimension(date_id),
