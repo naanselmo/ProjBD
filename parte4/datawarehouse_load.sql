@@ -77,105 +77,41 @@ CREATE PROCEDURE load_local_dimension()
 DROP PROCEDURE IF EXISTS load_reserva //
 CREATE PROCEDURE load_reserva()
   BEGIN
-    # Declare all variables for the cursor fetching.
-    DECLARE fetched_nif VARCHAR(9);
-    DECLARE fetched_morada VARCHAR(255);
-    DECLARE fetched_codigo_espaco VARCHAR(255);
-    DECLARE fetched_codigo_posto VARCHAR(255);
-    DECLARE fetched_data_inicio DATE;
-    DECLARE fetched_data_fim DATE;
-    DECLARE fetched_data_pagamento DATETIME;
-    DECLARE fetched_tarifa DECIMAL(19, 4);
-
-    # Declare all variables that will be used to create the reserva entry.
-    DECLARE fetched_date_id INT;
-    DECLARE fetched_time_id INT;
-    DECLARE fetched_local_id VARCHAR(765);
-
-    # Declare the cursor related variables.
-    # The query will give all the reservas that are rented by someone and paid.
-    DECLARE cursorDone INT DEFAULT FALSE;
-    DECLARE cursorReserva CURSOR FOR SELECT
-                                       nif,
-                                       morada,
-                                       codigo AS codigo_espaco,
-                                       NULL   AS codigo_posto,
-                                       data_inicio,
-                                       data_fim,
-                                       data   AS data_pagamento,
-                                       tarifa
-                                     FROM proj.aluga
-                                       NATURAL JOIN proj.oferta
-                                       NATURAL JOIN proj.espaco
-                                       JOIN proj.paga ON paga.numero = aluga.numero
-                                     UNION ALL
-                                     SELECT
-                                       nif,
-                                       morada,
-                                       codigo_espaco,
-                                       codigo AS codigo_posto,
-                                       data_inicio,
-                                       data_fim,
-                                       data   AS data_pagamento,
-                                       tarifa
-                                     FROM proj.aluga
-                                       NATURAL JOIN proj.oferta
-                                       NATURAL JOIN proj.posto
-                                       JOIN proj.paga ON paga.numero = aluga.numero;
-
-    # Make the cursorDone variable go false once the cursor goes through all the records.
-    DECLARE CONTINUE HANDLER FOR NOT FOUND SET cursorDone = TRUE;
-
-    # Start looping.
-    OPEN cursorReserva;
-    reservaLoop: LOOP
-      # Set the cursor done false, since any SELECT INTO will activate the handler and turn the variable true.
-      SET cursorDone = FALSE;
-      # Fetch the next record.
-      FETCH cursorReserva
-      INTO fetched_nif, fetched_morada, fetched_codigo_espaco, fetched_codigo_posto, fetched_data_inicio, fetched_data_fim, fetched_data_pagamento, fetched_tarifa;
-
-      # If there are no more records close the cursor and leave the loop.
-      IF cursorDone
-      THEN
-        CLOSE cursorReserva;
-        LEAVE reservaLoop;
-      END IF;
-
-      # Fetch the local dimension of the current record.
-      IF fetched_codigo_posto IS NULL
-      THEN
-        SELECT local_id
-        INTO fetched_local_id
-        FROM local_dimension
-        WHERE cod_edificio = fetched_morada AND cod_espaco = fetched_codigo_espaco AND cod_posto IS NULL;
-      ELSE
-        SELECT local_id
-        INTO fetched_local_id
-        FROM local_dimension
-        WHERE cod_edificio = fetched_morada AND cod_espaco = fetched_codigo_espaco AND cod_posto = fetched_codigo_posto;
-      END IF;
-
-      # Fetch the time dimension of when the reserva was paid.
-      SELECT time_id
-      INTO fetched_time_id
-      FROM time_dimension
-      WHERE hora = HOUR(fetched_data_pagamento) AND minuto = MINUTE(fetched_data_pagamento);
-
-      # Fetch the date dimension of when the reserva was paid.
-      SELECT date_id
-      INTO fetched_date_id
-      FROM date_dimension
-      WHERE
-        ano = YEAR(fetched_data_pagamento) AND mes = MONTH(fetched_data_pagamento) AND
-        dia = DAY(fetched_data_pagamento);
-
-      # Insert a new record in reserva with all the fetched dimensions.
-      INSERT INTO reserva (nif, date_id, time_id, local_id, total_pago, duracao_em_dias)
-      VALUES (fetched_nif, fetched_date_id, fetched_time_id, fetched_local_id,
-              (DATEDIFF(fetched_data_fim, fetched_data_inicio) + 1) * fetched_tarifa,
-              DATEDIFF(fetched_data_fim, fetched_data_inicio));
-    END LOOP;
+    INSERT INTO reserva
+      SELECT
+        nif                                                                              AS nif,
+        YEAR(data_pagamento) * 10000 + MONTH(data_pagamento) * 100 + DAY(data_pagamento) AS date_id,
+        HOUR(data_pagamento) * 100 + MINUTE(data_pagamento)                              AS time_id,
+        CONCAT(morada, codigo_espaco, IFNULL(codigo_posto, ''))                          AS local_id,
+        (DATEDIFF(data_fim, data_inicio) + 1) * tarifa                                   AS total_pago,
+        DATEDIFF(data_fim, data_inicio)                                                  AS duracao_em_dias
+      FROM (SELECT
+              nif,
+              morada,
+              codigo AS codigo_espaco,
+              NULL   AS codigo_posto,
+              data_inicio,
+              data_fim,
+              data   AS data_pagamento,
+              tarifa
+            FROM proj.aluga
+              NATURAL JOIN proj.oferta
+              NATURAL JOIN proj.espaco
+              JOIN proj.paga ON paga.numero = aluga.numero
+            UNION ALL
+            SELECT
+              nif,
+              morada,
+              codigo_espaco,
+              codigo AS codigo_posto,
+              data_inicio,
+              data_fim,
+              data   AS data_pagamento,
+              tarifa
+            FROM proj.aluga
+              NATURAL JOIN proj.oferta
+              NATURAL JOIN proj.posto
+              JOIN proj.paga ON paga.numero = aluga.numero) AS ReservasAlugadasEPagas;
   END //
 
 # Loads the data warehouse.
