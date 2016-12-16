@@ -197,11 +197,13 @@ CREATE PROCEDURE load_reserva()
           dia = DAY(fetched_data_pagamento);
 
         # Update the payment time, using the fields that we fetched.
-        UPDATE reserva
-        SET total_pago = (Datediff(fetched_data_fim, fetched_data_inicio) + 1) * fetched_tarifa
-        WHERE
-          nif = fetched_nif AND time_id = fetched_time_id AND date_id = fetched_date_id AND
-          local_id = fetched_local_id;
+        # The only reason why we insert and update on duplicate is because the time and date dimensions,
+        # may not be in the database yet, since we only added the ones that are between data_inicio e data_fim.
+        # For that reason if the user paid after this range, it will insert a new record on reserva with duaracao_em_dias NULL.
+        INSERT INTO reserva (nif, date_id, time_id, local_id, total_pago, duracao_em_dias) VALUES
+          (fetched_nif, fetched_date_id, fetched_time_id, fetched_local_id,
+           (Datediff(fetched_data_fim, fetched_data_inicio) + 1) * fetched_tarifa, NULL)
+        ON DUPLICATE KEY UPDATE total_pago = (Datediff(fetched_data_fim, fetched_data_inicio) + 1) * fetched_tarifa;
       END IF;
     END LOOP;
   END //
