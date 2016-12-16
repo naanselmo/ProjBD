@@ -1,13 +1,5 @@
 DELIMITER //
 
-# Parses a day, month and year to a mysql date type.
-DROP FUNCTION IF EXISTS to_date //
-CREATE FUNCTION to_date(day INT, month INT, year INT)
-  RETURNS DATE
-  BEGIN
-    RETURN DATE(CONCAT(year, '-', month, '-', day));
-  END //
-
 # Generates the date dimension, with all the days of the years 2016 and 2017.
 DROP PROCEDURE IF EXISTS load_date_dimension //
 CREATE PROCEDURE load_date_dimension()
@@ -101,8 +93,7 @@ CREATE PROCEDURE load_reserva()
     DECLARE fetched_local_id VARCHAR(765);
 
     # Declare the cursor related variables.
-    # The query will give all the reservas that are rented by someone, even if they didn't pay
-    # for it yet.
+    # The query will give all the reservas that are rented by someone and paid.
     DECLARE cursorDone INT DEFAULT FALSE;
     DECLARE cursorReserva CURSOR FOR SELECT
                                        nif,
@@ -116,7 +107,7 @@ CREATE PROCEDURE load_reserva()
                                      FROM proj.aluga
                                        NATURAL JOIN proj.oferta
                                        NATURAL JOIN proj.espaco
-                                       LEFT JOIN proj.paga ON paga.numero = aluga.numero
+                                       JOIN proj.paga ON paga.numero = aluga.numero
                                      UNION ALL
                                      SELECT
                                        nif,
@@ -130,7 +121,7 @@ CREATE PROCEDURE load_reserva()
                                      FROM proj.aluga
                                        NATURAL JOIN proj.oferta
                                        NATURAL JOIN proj.posto
-                                       LEFT JOIN proj.paga ON paga.numero = aluga.numero;
+                                       JOIN proj.paga ON paga.numero = aluga.numero;
 
     # Make the cursorDone variable go false once the cursor goes through all the records.
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET cursorDone = TRUE;
@@ -165,46 +156,25 @@ CREATE PROCEDURE load_reserva()
         WHERE cod_edificio = fetched_morada AND cod_espaco = fetched_codigo_espaco AND cod_posto = fetched_codigo_posto;
       END IF;
 
-      # Fill the whole date and time data for this reserva, since the start_date until the end_date.
-      # Also fill the remaining days and total_pago as 0.
-      INSERT INTO reserva
-        SELECT
-          fetched_nif                                          AS nif,
-          date_id,
-          time_id,
-          fetched_local_id                                     AS local_id,
-          0                                                    AS total_pago,
-          (Datediff(fetched_data_fim, to_date(dia, mes, ano))) AS duracao_em_dias
-        FROM time_dimension, date_dimension
-        WHERE to_date(dia, mes, ano) BETWEEN fetched_data_inicio AND fetched_data_fim;
+      # Fetch the time dimension of when the reserva was paid.
+      SELECT time_id
+      INTO fetched_time_id
+      FROM time_dimension
+      WHERE hora = HOUR(fetched_data_pagamento) AND minuto = MINUTE(fetched_data_pagamento);
 
-      # If it was paid then update the total_pago in the day and minute that it was paid.
-      IF fetched_data_pagamento IS NOT NULL
-      THEN
+      # Fetch the date dimension of when the reserva was paid.
+      SELECT date_id
+      INTO fetched_date_id
+      FROM date_dimension
+      WHERE
+        ano = YEAR(fetched_data_pagamento) AND mes = MONTH(fetched_data_pagamento) AND
+        dia = DAY(fetched_data_pagamento);
 
-        # Fetch the time dimension of when the reserva was paid.
-        SELECT time_id
-        INTO fetched_time_id
-        FROM time_dimension
-        WHERE hora = HOUR(fetched_data_pagamento) AND minuto = MINUTE(fetched_data_pagamento);
-
-        # Fetch the date dimension of when the reserva was paid.
-        SELECT date_id
-        INTO fetched_date_id
-        FROM date_dimension
-        WHERE
-          ano = YEAR(fetched_data_pagamento) AND mes = MONTH(fetched_data_pagamento) AND
-          dia = DAY(fetched_data_pagamento);
-
-        # Update the payment time, using the fields that we fetched.
-        # The only reason why we insert and update on duplicate is because the time and date dimensions,
-        # may not be in the database yet, since we only added the ones that are between data_inicio e data_fim.
-        # For that reason if the user paid after this range, it will insert a new record on reserva with duaracao_em_dias NULL.
-        INSERT INTO reserva (nif, date_id, time_id, local_id, total_pago, duracao_em_dias) VALUES
-          (fetched_nif, fetched_date_id, fetched_time_id, fetched_local_id,
-           (Datediff(fetched_data_fim, fetched_data_inicio) + 1) * fetched_tarifa, NULL)
-        ON DUPLICATE KEY UPDATE total_pago = (Datediff(fetched_data_fim, fetched_data_inicio) + 1) * fetched_tarifa;
-      END IF;
+      # Insert a new record in reserva with all the fetched dimensions.
+      INSERT INTO reserva (nif, date_id, time_id, local_id, total_pago, duracao_em_dias)
+      VALUES (fetched_nif, fetched_date_id, fetched_time_id, fetched_local_id,
+              (DATEDIFF(fetched_data_fim, fetched_data_inicio) + 1) * fetched_tarifa,
+              DATEDIFF(fetched_data_fim, fetched_data_inicio));
     END LOOP;
   END //
 
