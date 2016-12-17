@@ -19,10 +19,9 @@ CREATE PROCEDURE load_date_dimension()
       );
       SET full_date = DATE_ADD(full_date, INTERVAL 1 DAY);
     END WHILE;
-  END;
-//
+  END //
 
-# Generates the time dimension, with all minutes of the day, since 00:00 until 23:59
+# Generates the time dimension, with all minutes of the day, from 00:00 until 23:59
 DROP PROCEDURE IF EXISTS load_time_dimension //
 CREATE PROCEDURE load_time_dimension()
   BEGIN
@@ -74,6 +73,7 @@ CREATE PROCEDURE load_local_dimension()
                        FROM proj.posto)) AS local;
   END //
 
+# Loads all paid reservations into the reserva facts table.
 DROP PROCEDURE IF EXISTS load_reserva //
 CREATE PROCEDURE load_reserva()
   BEGIN
