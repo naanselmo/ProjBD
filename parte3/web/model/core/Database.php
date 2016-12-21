@@ -80,7 +80,7 @@ class Database
    */
   public static function parseDate($date)
   {
-    return DateTime::createFromFormat(Database::DATE_MYSQL, $date);
+    return DateTime::createFromFormat(Database::DATE_MYSQL, $date, new DateTimeZone('UTC'));
   }
 
   /**
@@ -100,7 +100,7 @@ class Database
    */
   public static function parseTimestamp($timestamp)
   {
-    return DateTime::createFromFormat(Database::TIMESTAMP_MYSQL, $timestamp);
+    return DateTime::createFromFormat(Database::TIMESTAMP_MYSQL, $timestamp, new DateTimeZone('UTC'));
   }
 
   /**
